@@ -14,6 +14,7 @@ const tokenModel = () =>
         .dateTime("created_at")
         .notNullable()
         .defaultTo(KnexMiddleWare.raw("CURRENT_TIMESTAMP"));
+
       table
         .dateTime("updated_at")
         .notNullable()

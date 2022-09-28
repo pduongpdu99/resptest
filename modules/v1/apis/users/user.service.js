@@ -123,7 +123,6 @@ const signIn = async (params) => {
         for (let index = 0; index < rs.length; index++) {
           const i = rs[index];
           user = rs[index];
-
           check = UserPreprocessUtil.compare(params.password, i.password);
           if (check) break;
         }
@@ -154,9 +153,9 @@ const signIn = async (params) => {
         // token service is called to execute add method
         if (check) {
           const t = await TokenService.add({
-            userId: user.id,
-            refreshToken,
-            expiresIn: expiresInRefreshToken,
+            user_id: user.id,
+            refresh_token: refreshToken,
+            expires_in: expiresInRefreshToken,
           });
 
           // throw error
@@ -170,7 +169,7 @@ const signIn = async (params) => {
         return {
           user: user,
           token: accessToken,
-          refreshToken,
+          refresh_token: refreshToken,
         };
       });
   } catch (err) {

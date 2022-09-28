@@ -21,9 +21,9 @@ UserRouter.get(
 
 // post
 UserRouter.post("/add", authenticateToken, UserController.add);
-UserRouter.post("/signup", UserController.signUp);
+UserRouter.post("/sign-up", UserController.signUp);
 UserRouter.post(
-  "/signin",
+  "/sign-in",
   // AuthPassport.afterJWT,
   UserController.signIn
 );

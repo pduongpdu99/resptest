@@ -37,13 +37,14 @@ const add = async (params) => {
   try {
     const tokenInstance = await KnexMiddleWare("tokens")
       .where({
-        userId: params.userId,
+        user_id: params.user_id,
       })
       .select()
       .catch((e) => e);
 
     // not exist -> allow add token
     const isNotExist = tokenInstance.length == 0;
+    console.log(tokenInstance)
     if (isNotExist == true) {
       return await KnexMiddleWare("tokens")
         .insert(params)
