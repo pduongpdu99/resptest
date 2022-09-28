@@ -11,6 +11,7 @@ userModel();
 // get
 UserRouter.get("/all", UserController.selectAll);
 UserRouter.get("/find/:id", UserController.findId);
+UserRouter.get("/find/email/:email", UserController.findByEmail);
 // UserRouter.get("/");
 // UserRouter.get("/find");
 

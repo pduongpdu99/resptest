@@ -188,6 +188,23 @@ const findId = async (id) => {
   }
 };
 
+/**
+ * find by id method
+ * @param {*} email
+ * @method GET
+ * @returns
+ */
+const findByEmail = async (email) => {
+  try {
+    return await KnexMiddleWare("users").where("email", "=", email).select();
+  } catch (err) {
+    return {
+      status: 500,
+      ...{ message: "500 Internal error", error: err },
+    };
+  }
+};
+
 module.exports = {
   selectAll,
   add,
@@ -196,4 +213,5 @@ module.exports = {
   findId,
   signUp,
   signIn,
+  findByEmail
 };

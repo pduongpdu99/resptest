@@ -102,9 +102,31 @@ const findId = async (req, res) => {
     const instance = await UserService.findId(req.params.id);
     if (instance.length == 0) {
       // BUG: why not response this
-      res.status(404).json({ message: "Not found" });
+      res.status(404).json({ message: "Not found", status: 404 });
     } else {
       res.status(200).json(instance);
+    }
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Error find by id from users", error: err });
+  }
+};
+
+/**
+ * add method
+ * @param {*} req
+ * @param {*} res
+ */
+const findByEmail = async (req, res) => {
+  console.log("Over here");
+  try {
+    const instance = await UserService.findByEmail(req.params.email);
+    if (instance.length == 0) {
+      // BUG: why not response this
+      res.status(404).json({ message: "Not found" });
+    } else {
+      res.status(200).json(instance[0]);
     }
   } catch (err) {
     res
@@ -121,4 +143,5 @@ module.exports = {
   findId,
   signUp,
   signIn,
+  findByEmail,
 };
