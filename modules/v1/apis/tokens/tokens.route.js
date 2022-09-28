@@ -4,8 +4,8 @@ const { Router } = require("express");
 const TokenController = require("./tokens.controller");
 const TokenRouter = Router();
 
-const { userModel } = require("./tokens.schema");
-userModel();
+const { tokenModel } = require("./tokens.schema");
+tokenModel();
 
 // get
 TokenRouter.get("/all", TokenController.selectAll);
