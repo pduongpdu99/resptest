@@ -20,8 +20,8 @@ UserRouter.post("/signup", UserController.signUp);
 UserRouter.post(
   "/signin",
   AuthPassport.createJWT,
-  AuthPassport.afterJWT,
-  UserController.signIn
+  // AuthPassport.afterJWT,
+  // UserController.signIn
 );
 
 // update

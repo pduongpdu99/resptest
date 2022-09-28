@@ -1,6 +1,4 @@
 const UserService = require("./user.service");
-// const jwt = require("jsonwebtoken");
-// const dotenv = require("dotenv");
 
 /**
  * select all
@@ -54,23 +52,6 @@ const signIn = async (req, res, next) => {
     const params = req.body;
     UserService.signIn(params).then((result) => {
       if (result) {
-        // create jwt
-        // const accessToken = jwt.sign(
-        //   {
-        //     email: params.email,
-        //   },
-        //   dotenv.parsed["ACCESS_TOKEN_SECRET"],
-        //   { expiresIn: "30s" }
-        // );
-
-        // const refreshToken = jwt.sign(
-        //   {
-        //     email: params.email,
-        //   },
-        //   dotenv.parsed["REFRESH_TOKEN_SECRET"],
-        //   { expiresIn: "1d" }
-        // );
-
         req.loginStatus = result;
         next();
       } else {

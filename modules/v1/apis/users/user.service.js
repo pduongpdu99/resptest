@@ -2,6 +2,8 @@ const { KnexMiddleWare } = require("../../../../middleware/knex.middleware");
 const {
   UserPreprocessUtil,
 } = require("../../../../utils/user-preprocess.util");
+// const jwt = require("jsonwebtoken");
+// const dotenv = require("dotenv");
 
 /**
  * select all
@@ -93,6 +95,23 @@ const signIn = async (params) => {
           check = UserPreprocessUtil.compare(params.password, i.password);
           if (check) break;
         }
+
+        // create jwt
+        // const accessToken = jwt.sign(
+        //   {
+        //     email: params.email,
+        //   },
+        //   dotenv.parsed["ACCESS_TOKEN_SECRET"],
+        //   { expiresIn: "30s" }
+        // );
+
+        // const refreshToken = jwt.sign(
+        //   {
+        //     email: params.email,
+        //   },
+        //   dotenv.parsed["REFRESH_TOKEN_SECRET"],
+        //   { expiresIn: "1d" }
+        // );
 
         // trả về kết quả email và password đúng --> true | false
         return check;
