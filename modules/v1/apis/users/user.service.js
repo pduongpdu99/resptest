@@ -149,14 +149,18 @@ const signIn = async (params) => {
         });
 
         // token service is called to execute add method
-        const t = await TokenService.add({
-          userId: user.id,
-          refreshToken,
-          expiresIn,
-        });
+        if (check) {
+          const t = await TokenService.add({
+            userId: user.id,
+            refreshToken,
+            expiresIn,
+          });
 
-        // throw error
-        if (t instanceof Error) throw t;
+          // throw error
+          if (t instanceof Error) throw t;
+        } else {
+          throw new Error('404: user not found')
+        }
 
         // trả về kết quả email và password đúng --> true | false
         delete user["password"];

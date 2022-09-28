@@ -50,8 +50,15 @@ const signUp = async (req, res) => {
 
     res.status(200).json(userSignuped);
   } catch (err) {
+    // get status code
+    const status = err.message.toLowerCase().includes("conflict")
+      ? 409
+      : err.message.toLowerCase().includes("validation")
+      ? 400
+      : 500;
+
     res
-      .status(err.message.toLowerCase().includes("validation") ? 400 : 500)
+      .status(status)
       .json({ message: err.message, name: err.name, stack: err.stack });
   }
 };
@@ -68,13 +75,19 @@ const signIn = async (req, res) => {
       if (!(result instanceof Error)) {
         res.status(200).json(result);
       } else {
-        res
-          .status(result.message.toLowerCase().includes("conflict") ? 409 : 400)
-          .send({
-            message: result.message,
-            name: result.name,
-            stack: result.stack,
-          });
+        // get status code
+        const status = result.message.toLowerCase().includes("conflict")
+          ? 409
+          : result.message.toLowerCase().includes("not found")
+          ? 404
+          : 400;
+
+        // response
+        res.status(status).send({
+          message: result.message,
+          name: result.name,
+          stack: result.stack,
+        });
       }
     });
   } catch (err) {
