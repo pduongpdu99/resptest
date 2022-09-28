@@ -7,21 +7,7 @@ const knex_populate = require("knex-populate");
 const selectAll = async () => {
   try {
     // get all token with populate
-    return await knex_populate(KnexMiddleWare, "tokens")
-      .find()
-      .populate("users", "id", "user_id")
-      .exec()
-      .then((objects) =>
-        objects.map((obj) => {
-          let users = obj.user_id;
-          delete obj.user_id;
-
-          return {
-            user_id: users[0],
-            ...obj,
-          };
-        })
-      );
+    return await KnexMiddleWare("tokens").select();
   } catch (err) {
     return new Error("500 Internal error");
   }
@@ -44,7 +30,6 @@ const add = async (params) => {
 
     // not exist -> allow add token
     const isNotExist = tokenInstance.length == 0;
-    console.log(tokenInstance)
     if (isNotExist == true) {
       return await KnexMiddleWare("tokens")
         .insert(params)

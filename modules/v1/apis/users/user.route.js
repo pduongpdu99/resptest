@@ -22,12 +22,9 @@ UserRouter.get(
 // post
 UserRouter.post("/add", authenticateToken, UserController.add);
 UserRouter.post("/sign-up", UserController.signUp);
-UserRouter.post(
-  "/sign-in",
-  // AuthPassport.afterJWT,
-  UserController.signIn
-);
+UserRouter.post("/sign-in", UserController.signIn);
 UserRouter.post("/sign-out", UserController.signOut);
+UserRouter.post("/refresh-token", UserController.refreshToken);
 
 // update
 UserRouter.put("/update/:id", authenticateToken, UserController.updateById);

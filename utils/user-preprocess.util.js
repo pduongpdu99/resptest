@@ -15,8 +15,8 @@ class UserPreprocessUtil {
 
   /**
    * check password valid
-   * @param {*} password 
-   * @returns 
+   * @param {*} password
+   * @returns
    */
   static isValidPassword(password) {
     var re = /^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
@@ -25,12 +25,17 @@ class UserPreprocessUtil {
 
   /**
    * check email valid
-   * @param {*} password 
-   * @returns 
+   * @param {*} password
+   * @returns
    */
-   static isEmailValidation(password) {
+  static isEmailValidation(password) {
     var re = /^\w+([\\.-]?\w+)*@\w+([\\.-]?\w+)*(\.\w{2,3})+$/;
     return re.test(password);
+  }
+
+  static isRefreshTokenValidation(refreshToken) {
+    var re = /^[A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.?[A-Za-z0-9-_.+/=]*$/;
+    return re.test(refreshToken);
   }
 
   /**

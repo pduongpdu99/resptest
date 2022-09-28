@@ -133,7 +133,7 @@ const signIn = async (params) => {
 
         // expires in
         const expiresInRefreshToken = "30d";
-        const expiresInAccessToken = "1d";
+        const expiresInAccessToken = "1h";
 
         // declare options
         const options = {
@@ -206,7 +206,7 @@ const signOut = async (authorization) => {
       let usr = us[0];
 
       // remove all in tokens by user id
-      console.log("user_id", usr.id)
+      console.log("user_id", usr.id);
       await KnexMiddleWare("tokens").where("user_id", usr.id).del();
     });
 
@@ -216,6 +216,49 @@ const signOut = async (authorization) => {
     };
   } else {
     return new Error("500 internal error");
+  }
+};
+
+/**
+ * sign out method
+ * @param {*} params
+ * @method POST
+ * @returns
+ */
+const refreshToken = async (params) => {
+  try {
+    // check email validation
+    if (!UserPreprocessUtil.isRefreshTokenValidation(params.refresh_token))
+      throw new Error("500 - internal error");
+
+    const instances = await KnexMiddleWare("tokens")
+      .where("refresh_token", params.refresh_token)
+      .select();
+
+    // 404 - token not found
+    if (instances.length == 0) {
+      return new Error("404 - token not found");
+    } else {
+      // 200 - refresh token sucess
+
+      // declare options
+      const options = {
+        email: instances[0].email,
+      };
+
+      // update access token
+      accessToken = jwt.sign(options, process.env["ACCESS_TOKEN_SECRET"], {
+        expiresIn: "1h",
+      });
+
+      // render content
+      return {
+        token: accessToken,
+        refresh_token: instances[0].refresh_token,
+      };
+    }
+  } catch (err) {
+    return err;
   }
 };
 
@@ -297,5 +340,6 @@ module.exports = {
   signUp,
   signIn,
   signOut,
+  refreshToken,
   findByEmail,
 };

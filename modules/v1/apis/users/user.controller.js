@@ -111,7 +111,7 @@ const signOut = async (req, res) => {
     UserService.signOut(req.headers["authorization"]).then((result) => {
       if (!(result instanceof Error)) {
         // set result.refreshToken into cookie
-        // res.clearCookie("jwt");
+        res.clearCookie("jwt");
 
         // render json result
         res.status(200).json(result);
@@ -129,12 +129,39 @@ const signOut = async (req, res) => {
         });
       }
     });
-
   } catch (err) {
     console.log(err);
     res
       .status(500)
       .json({ message: "500 http code on internal error", error: err });
+  }
+};
+
+/**
+ * refresh token
+ * @param {*} req
+ * @param {*} res
+ */
+const refreshToken = (req, res) => {
+  try {
+    UserService.refreshToken(req.body).then((result) => {
+      if (!(result instanceof Error)) {
+        // render json result
+        res.status(200).json(result);
+      } else {
+        // get status code
+        const status = 404;
+
+        // response
+        res.status(status).send({
+          message: result.message,
+          name: result.name,
+          stack: result.stack,
+        });
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ message: "500 - internal error", error: err });
   }
 };
 
@@ -218,5 +245,6 @@ module.exports = {
   signUp,
   signIn,
   signOut,
+  refreshToken,
   findByEmail,
 };
