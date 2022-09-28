@@ -81,14 +81,14 @@ function authenticateToken(req, res, next) {
   if (req.headers["authorization"]) {
     const authHeader = req.headers["authorization"];
     let token = authHeader.split(" ")[1];
-    if (token == null) return res.sendStatus(401);
+    if (token == null || token == undefined) return res.sendStatus(401);
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
       if (err) return res.sendStatus(403);
       req.user = user;
       next();
     });
   } else {
-    return res.sendStatus(404);
+    return res.sendStatus(500);
   }
 }
 
