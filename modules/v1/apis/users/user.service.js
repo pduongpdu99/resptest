@@ -1,9 +1,18 @@
+/* eslint-disable no-undef */
 const { KnexMiddleWare } = require("../../../../middleware/knex.middleware");
 const {
   UserPreprocessUtil,
 } = require("../../../../utils/user-preprocess.util");
-// const jwt = require("jsonwebtoken");
-// const dotenv = require("dotenv");
+const TokenService = require("../tokens/tokens.service");
+
+// jwt passport
+const jwt = require("jsonwebtoken");
+
+// .env
+const dotenv = require("dotenv");
+
+// apply .env config
+dotenv.config();
 
 /**
  * select all
@@ -58,18 +67,69 @@ const signUp = async (params) => {
     const password = params.password;
     params["password"] = await UserPreprocessUtil.hashPassword(password, 10);
 
-    return await KnexMiddleWare("users")
-      .insert(params)
-      .then((r) => {
-        delete params.password;
+    const userInstance = await findByEmail(params["email"]);
+    const isEmpty = userInstance.length == 0;
 
-        params.displayName = `${params.firstName} ${params.lastName}`;
-        return {
-          id: r[0],
-          ...params,
-        };
-      });
+    // check is empty then add object
+    if (isEmpty) {
+      return await KnexMiddleWare("users")
+        .insert(params)
+        .then((r) => {
+          delete params.password;
+
+          // declare token variables
+          let accessToken = undefined,
+            refreshToken = undefined;
+
+          // expires in
+          const expiresIn = "1d";
+
+          // combie first and last name
+          params.displayName = `${params.firstName} ${params.lastName}`;
+
+          // declare options
+          const options = {
+            email: params.email,
+          };
+
+          // create accessToken
+          accessToken = jwt.sign(options, process.env["ACCESS_TOKEN_SECRET"], {
+            expiresIn: "30s",
+          });
+
+          // create refreshToken
+          refreshToken = jwt.sign(
+            options,
+            process.env["REFRESH_TOKEN_SECRET"],
+            { expiresIn }
+          );
+
+          // token service is called to execute add method
+          TokenService.add({
+            userId: r[0],
+            refreshToken,
+            expiresIn,
+          });
+
+          // return user, token, refreshToken
+          return {
+            user: {
+              id: r[0],
+              ...params,
+            },
+            token: accessToken,
+            refreshToken,
+          };
+        });
+    }
+
+    // exist -> conflict
+    return {
+      status: 409,
+      ...{ message: "409 Conflict" },
+    };
   } catch (err) {
+    console.log(err);
     return {
       status: 500,
       ...{ message: "500 Internal error", error: err },
@@ -95,23 +155,6 @@ const signIn = async (params) => {
           check = UserPreprocessUtil.compare(params.password, i.password);
           if (check) break;
         }
-
-        // create jwt
-        // const accessToken = jwt.sign(
-        //   {
-        //     email: params.email,
-        //   },
-        //   dotenv.parsed["ACCESS_TOKEN_SECRET"],
-        //   { expiresIn: "30s" }
-        // );
-
-        // const refreshToken = jwt.sign(
-        //   {
-        //     email: params.email,
-        //   },
-        //   dotenv.parsed["REFRESH_TOKEN_SECRET"],
-        //   { expiresIn: "1d" }
-        // );
 
         // trả về kết quả email và password đúng --> true | false
         return check;
@@ -213,5 +256,5 @@ module.exports = {
   findId,
   signUp,
   signIn,
-  findByEmail
+  findByEmail,
 };

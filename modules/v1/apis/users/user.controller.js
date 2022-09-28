@@ -36,7 +36,18 @@ const add = async (req, res) => {
 const signUp = async (req, res) => {
   try {
     const params = req.body;
-    res.status(200).json(await UserService.signUp(params));
+
+    const userSignuped = await UserService.signUp(params);
+    const { refreshToken } = userSignuped;
+
+    // set cookie
+    const _1day = 24 * 60 * 60 * 1000;
+    res.cookie("jwt", refreshToken, {
+      httpOnly: true,
+      maxAge: _1day,
+    });
+
+    res.status(200).json(userSignuped);
   } catch (err) {
     res.status(500).json({ message: "500 Error signning up user", error: err });
   }

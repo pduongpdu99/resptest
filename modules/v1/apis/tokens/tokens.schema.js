@@ -7,10 +7,9 @@ const tokenModel = () =>
   KnexMiddleWare.schema
     .createTableIfNotExists("tokens", (table) => {
       table.increments("id").primary();
-      table.string("firstName");
-      table.string("lastName");
-      table.string("email").unique();
-      table.string("password");
+      table.string("userId");
+      table.string("refreshToken").unique();
+      table.string("expiresIn");
       table
         .dateTime("createdAt")
         .notNullable()

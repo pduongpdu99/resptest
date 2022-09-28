@@ -1,7 +1,4 @@
 const { KnexMiddleWare } = require("../../../../middleware/knex.middleware");
-const {
-  UserPreprocessUtil,
-} = require("../../../../utils/user-preprocess.util");
 
 /**
  * select all
@@ -29,73 +26,10 @@ const add = async (params) => {
     return await KnexMiddleWare("tokens")
       .insert(params)
       .then((r) => {
-        delete params.password;
-
-        params.displayName = `${params.firstName} ${params.lastName}`;
         return {
           id: r[0],
           ...params,
         };
-      });
-  } catch (err) {
-    return {
-      status: 500,
-      ...{ message: "500 Internal error", error: err },
-    };
-  }
-};
-
-/**
- * sign up method
- * @param {*} params
- * @method POST
- * @returns
- */
-const signUp = async (params) => {
-  try {
-    const password = params.password;
-    params["password"] = await UserPreprocessUtil.hashPassword(password, 10);
-
-    return await KnexMiddleWare("tokens")
-      .insert(params)
-      .then((r) => {
-        delete params.password;
-
-        params.displayName = `${params.firstName} ${params.lastName}`;
-        return {
-          id: r[0],
-          ...params,
-        };
-      });
-  } catch (err) {
-    return {
-      status: 500,
-      ...{ message: "500 Internal error", error: err },
-    };
-  }
-};
-
-/**
- * sign in method
- * @param {*} params
- * @method POST
- * @returns
- */
-const signIn = async (params) => {
-  try {
-    return await KnexMiddleWare("tokens")
-      .where({ email: params.email })
-      .select()
-      .then((rs) => {
-        let check = false;
-        for (let index = 0; index < rs.length; index++) {
-          const i = rs[index];
-          check = UserPreprocessUtil.compare(params.password, i.password);
-          if (check) break;
-        }
-        
-        // trả về kết quả email và password đúng --> true | false
-        return check;
       });
   } catch (err) {
     return {
@@ -175,6 +109,4 @@ module.exports = {
   removeById,
   updateById,
   findId,
-  signUp,
-  signIn,
 };
