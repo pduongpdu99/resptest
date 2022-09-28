@@ -134,7 +134,6 @@ const findUserByToken = async (req, res) => {
       res.status(200).json(instance);
     }
   } catch (err) {
-    console.error(err);
     res
       .status(500)
       .json({ message: "Error find by id from Tokens", error: err });
