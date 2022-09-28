@@ -73,6 +73,10 @@ const signIn = async (req, res) => {
     const params = req.body;
     UserService.signIn(params).then((result) => {
       if (!(result instanceof Error)) {
+        // set result.refreshToken into cookie
+        res.cookie("jwt", result.refreshToken);
+
+        // render json result
         res.status(200).json(result);
       } else {
         // get status code

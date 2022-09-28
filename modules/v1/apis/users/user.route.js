@@ -1,4 +1,5 @@
 const { Router } = require("express");
+const { authenticateToken } = require("../../../../auth/auth.passport");
 
 // controller
 const UserController = require("./user.controller");
@@ -8,14 +9,18 @@ const { userModel } = require("./users.schema");
 userModel();
 
 // get
-UserRouter.get("/all", UserController.selectAll);
-UserRouter.get("/find/:id", UserController.findId);
-UserRouter.get("/find/email/:email", UserController.findByEmail);
+UserRouter.get("/all", authenticateToken, UserController.selectAll);
+UserRouter.get("/find/:id", authenticateToken, UserController.findId);
+UserRouter.get(
+  "/find/email/:email",
+  authenticateToken,
+  UserController.findByEmail
+);
 // UserRouter.get("/");
 // UserRouter.get("/find");
 
 // post
-UserRouter.post("/add", UserController.add);
+UserRouter.post("/add", authenticateToken, UserController.add);
 UserRouter.post("/signup", UserController.signUp);
 UserRouter.post(
   "/signin",
@@ -24,10 +29,10 @@ UserRouter.post(
 );
 
 // update
-UserRouter.put("/update/:id", UserController.updateById);
+UserRouter.put("/update/:id", authenticateToken, UserController.updateById);
 
 // delete
-UserRouter.delete("/delete/:id", UserController.removeById);
+UserRouter.delete("/delete/:id", authenticateToken, UserController.removeById);
 
 // export
 module.exports = { UserRouter };

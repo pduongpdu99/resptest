@@ -134,7 +134,7 @@ const signIn = async (params) => {
 
         // expires in
         const expiresInRefreshToken = "30d";
-        const expiresInAccessToken = "30s";
+        const expiresInAccessToken = "1d";
 
         // declare options
         const options = {

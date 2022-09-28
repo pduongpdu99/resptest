@@ -1,5 +1,8 @@
+/* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
-const { expressjwt: jwt } = require("express-jwt");
+require("dotenv").config();
+const jwt = require("jsonwebtoken");
+const { cookieParse } = require("../utils/cookie.util");
 
 // const { handleErrors, handleNotFoundErrors } = require("../utils/error.util");
 // const { UserService } = require("../modules/v1/api/users/users.service");
@@ -66,3 +69,29 @@ const { expressjwt: jwt } = require("express-jwt");
 //     }
 //   };
 // };
+
+/**
+ * authenticate token
+ * @param {*} req
+ * @param {*} res
+ * @param {*} next
+ * @returns
+ */
+function authenticateToken(req, res, next) {
+  if (req.headers["authorization"]) {
+    const authHeader = req.headers["authorization"];
+    let token = authHeader.split(" ")[1];
+    if (token == null) return res.sendStatus(401);
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+      if (err) return res.sendStatus(403);
+      req.user = user;
+      next();
+    });
+  } else {
+    return res.sendStatus(404);
+  }
+}
+
+module.exports = {
+  authenticateToken,
+};
