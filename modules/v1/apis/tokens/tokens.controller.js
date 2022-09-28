@@ -21,7 +21,6 @@ const selectAll = async (req, res) => {
 const add = async (req, res) => {
   try {
     const params = req.body;
-    console.log(params);
     res.status(200).json(await TokenService.add(params));
   } catch (err) {
     res.status(500).json({ message: "Error adding Token", error: err });

@@ -1,8 +1,4 @@
 const { Router } = require("express");
-const {
-  verifyJWT,
-  afterVerifyJWT,
-} = require("../../../../middleware/verifyJWT");
 
 // controller
 const TokenController = require("./tokens.controller");
@@ -12,7 +8,7 @@ const { tokenModel } = require("./tokens.schema");
 tokenModel();
 
 // get
-TokenRouter.get("/all", verifyJWT, afterVerifyJWT, TokenController.selectAll);
+TokenRouter.get("/all", TokenController.selectAll);
 TokenRouter.get("/find/:id", TokenController.findId);
 
 // post

@@ -138,7 +138,7 @@ const findId = async (req, res) => {
       // BUG: why not response this
       res.status(404).json({ message: "Not found", status: 404 });
     } else {
-      res.status(200).json(instance);
+      res.status(200).json(instance[0]);
     }
   } catch (err) {
     res
