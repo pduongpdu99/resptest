@@ -14,12 +14,22 @@ class UserPreprocessUtil {
   }
 
   /**
-   * check valid password
+   * check password valid
    * @param {*} password 
    * @returns 
    */
   static isValidPassword(password) {
     var re = /^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
+    return re.test(password);
+  }
+
+  /**
+   * check email valid
+   * @param {*} password 
+   * @returns 
+   */
+   static isEmailValidation(password) {
+    var re = /^\w+([\\.-]?\w+)*@\w+([\\.-]?\w+)*(\.\w{2,3})+$/;
     return re.test(password);
   }
 

@@ -64,11 +64,15 @@ const add = async (params) => {
  */
 const signUp = async (params) => {
   try {
-    const password = params.password;
+    // check email validation
+    if (!UserPreprocessUtil.isEmailValidation(params.email))
+      throw new Error("400 http code on validation error");
+
     // check valid password
     if (!UserPreprocessUtil.isValidPassword(params.password))
       throw new Error("400 http code on validation error");
 
+    const password = params.password;
     params["password"] = await UserPreprocessUtil.hashPassword(password, 10);
 
     const userInstance = await findByEmail(params["email"]);
@@ -107,7 +111,11 @@ const signUp = async (params) => {
  */
 const signIn = async (params) => {
   try {
-    // check valid password
+    // check email validation
+    if (!UserPreprocessUtil.isEmailValidation(params.email))
+      throw new Error("400 http code on validation error");
+
+    // check password validation
     if (!UserPreprocessUtil.isValidPassword(params.password))
       throw new Error("400 http code on validation error");
 
@@ -131,7 +139,8 @@ const signIn = async (params) => {
           refreshToken = undefined;
 
         // expires in
-        const expiresIn = "1d";
+        const expiresInRefreshToken = "30d";
+        const expiresInAccessToken = "30s";
 
         // declare options
         const options = {
@@ -140,12 +149,12 @@ const signIn = async (params) => {
 
         // create accessToken
         accessToken = jwt.sign(options, process.env["ACCESS_TOKEN_SECRET"], {
-          expiresIn: "30s",
+          expiresIn: expiresInAccessToken,
         });
 
         // create refreshToken
         refreshToken = jwt.sign(options, process.env["REFRESH_TOKEN_SECRET"], {
-          expiresIn,
+          expiresIn: expiresInRefreshToken,
         });
 
         // token service is called to execute add method
@@ -153,13 +162,13 @@ const signIn = async (params) => {
           const t = await TokenService.add({
             userId: user.id,
             refreshToken,
-            expiresIn,
+            expiresIn: expiresInRefreshToken,
           });
 
           // throw error
           if (t instanceof Error) throw t;
         } else {
-          throw new Error('404: user not found')
+          throw new Error("404: user not found");
         }
 
         // trả về kết quả email và password đúng --> true | false
