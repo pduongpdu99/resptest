@@ -10,8 +10,6 @@ tokenModel();
 // get
 TokenRouter.get("/all", TokenController.selectAll);
 TokenRouter.get("/find/:id", TokenController.findId);
-// TokenRouter.get("/");
-// TokenRouter.get("/find");
 
 // post
 TokenRouter.post("/add", TokenController.add);

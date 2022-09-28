@@ -1,12 +1,28 @@
 const { KnexMiddleWare } = require("../../../../middleware/knex.middleware");
-
+const knex_populate = require("knex-populate");
 /**
  * select all
  * @returns
  */
 const selectAll = async () => {
   try {
-    return await KnexMiddleWare.select().from("tokens");
+
+    // get all token with populate
+    return await knex_populate(KnexMiddleWare, "tokens")
+      .find()
+      .populate("users", "id", "userId")
+      .exec()
+      .then((objects) =>
+        objects.map((obj) => {
+          let users = obj.userId;
+          delete obj.userId;
+
+          return {
+            userId: users[0],
+            ...obj,
+          };
+        })
+      );
   } catch (err) {
     return {
       status: 500,
