@@ -178,6 +178,48 @@ const signIn = async (params) => {
 };
 
 /**
+ * sign out method
+ * @param {*} params
+ * @method POST
+ * @returns
+ */
+const signOut = async (authorization) => {
+  if (authorization) {
+    const authHeader = authorization;
+    let token = authHeader.split(" ")[1];
+    if (token == null) throw new Error("401 token null");
+
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
+      // throw err
+      if (err) throw new Error(err);
+
+      // get email from user auth-ed by jwt
+      let email = user.email;
+
+      // find all users by email
+      let us = await findByEmail(email);
+
+      // throw if empty
+      if (us.length == 0) throw new Error("404 not found");
+
+      // first user
+      let usr = us[0];
+
+      // remove all in tokens by user id
+      console.log("user_id", usr.id)
+      await KnexMiddleWare("tokens").where("user_id", usr.id).del();
+    });
+
+    return {
+      message: "Sign out sucess",
+      statusCode: 204,
+    };
+  } else {
+    return new Error("500 internal error");
+  }
+};
+
+/**
  * remove method
  * @param {*} id
  * @method DELETE
@@ -254,5 +296,6 @@ module.exports = {
   findId,
   signUp,
   signIn,
+  signOut,
   findByEmail,
 };

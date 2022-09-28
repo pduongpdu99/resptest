@@ -9,15 +9,15 @@ const selectAll = async () => {
     // get all token with populate
     return await knex_populate(KnexMiddleWare, "tokens")
       .find()
-      .populate("users", "id", "userId")
+      .populate("users", "id", "user_id")
       .exec()
       .then((objects) =>
         objects.map((obj) => {
-          let users = obj.userId;
-          delete obj.userId;
+          let users = obj.user_id;
+          delete obj.user_id;
 
           return {
-            userId: users[0],
+            user_id: users[0],
             ...obj,
           };
         })

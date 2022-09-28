@@ -28,7 +28,7 @@ const add = async (req, res) => {
 };
 
 /**
- * add method
+ * sign up method
  * @param {*} req
  * @param {*} res
  */
@@ -64,7 +64,7 @@ const signUp = async (req, res) => {
 };
 
 /**
- * add method
+ * sign in method
  * @param {*} req
  * @param {*} res
  */
@@ -97,12 +97,49 @@ const signIn = async (req, res) => {
   } catch (err) {
     res
       .status(500)
-      .json({ message: "	500 http code on internal error", error: err });
+      .json({ message: "500 http code on internal error", error: err });
   }
 };
 
 /**
- * add method
+ * sign out method
+ * @param {*} req
+ * @param {*} res
+ */
+const signOut = async (req, res) => {
+  try {
+    UserService.signOut(req.headers["authorization"]).then((result) => {
+      if (!(result instanceof Error)) {
+        // set result.refreshToken into cookie
+        // res.clearCookie("jwt");
+
+        // render json result
+        res.status(200).json(result);
+      } else {
+        // get status code
+        const status = result.message.toLowerCase().includes("not found")
+          ? 404
+          : 400;
+
+        // response
+        res.status(status).send({
+          message: result.message,
+          name: result.name,
+          stack: result.stack,
+        });
+      }
+    });
+
+  } catch (err) {
+    console.log(err);
+    res
+      .status(500)
+      .json({ message: "500 http code on internal error", error: err });
+  }
+};
+
+/**
+ * update by id method
  * @param {*} req
  * @param {*} res
  */
@@ -117,7 +154,7 @@ const updateById = async (req, res) => {
 };
 
 /**
- * add method
+ * remove by id method
  * @param {*} req
  * @param {*} res
  */
@@ -131,7 +168,7 @@ const removeById = async (req, res) => {
 };
 
 /**
- * add method
+ * find id method
  * @param {*} req
  * @param {*} res
  */
@@ -152,7 +189,7 @@ const findId = async (req, res) => {
 };
 
 /**
- * add method
+ * find by email method
  * @param {*} req
  * @param {*} res
  */
@@ -180,5 +217,6 @@ module.exports = {
   findId,
   signUp,
   signIn,
+  signOut,
   findByEmail,
 };

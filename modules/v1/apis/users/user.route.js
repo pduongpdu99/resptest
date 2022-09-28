@@ -27,6 +27,7 @@ UserRouter.post(
   // AuthPassport.afterJWT,
   UserController.signIn
 );
+UserRouter.post("/sign-out", UserController.signOut);
 
 // update
 UserRouter.put("/update/:id", authenticateToken, UserController.updateById);
