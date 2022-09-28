@@ -16,8 +16,6 @@ UserRouter.get(
   authenticateToken,
   UserController.findByEmail
 );
-// UserRouter.get("/");
-// UserRouter.get("/find");
 
 // post
 UserRouter.post("/add", authenticateToken, UserController.add);

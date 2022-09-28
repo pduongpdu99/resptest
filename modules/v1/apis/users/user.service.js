@@ -67,9 +67,14 @@ const signUp = async (params) => {
       throw new Error("400 http code on validation error");
 
     const password = params.password;
+
+    // get password hashed
     params["password"] = await UserPreprocessUtil.hashPassword(password, 10);
 
+    // find user by email
     const userInstance = await findByEmail(params["email"]);
+
+    // check user is not exist
     const isEmpty = userInstance.length == 0;
 
     // check is empty then add object
@@ -189,6 +194,7 @@ const signOut = async (authorization) => {
     let token = authHeader.split(" ")[1];
     if (token == null) throw new Error("401 token null");
 
+    // check access token secret & token from header to get the user email
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
       // throw err
       if (err) throw new Error(err);
@@ -269,7 +275,10 @@ const refreshToken = async (params) => {
  */
 const removeById = async (id) => {
   try {
+    // remove id user
     await KnexMiddleWare("users").where("id", "=", id).del();
+
+    // response
     return {
       status: 200,
       message: "deleted",
@@ -293,6 +302,8 @@ const updateById = async (id, params) => {
 
     // update by id
     await KnexMiddleWare("users").where("id", "=", id).update(params);
+
+    // response
     return {
       status: 200,
       message: "updated",
@@ -310,6 +321,7 @@ const updateById = async (id, params) => {
  */
 const findId = async (id) => {
   try {
+    // response user by id
     return await KnexMiddleWare("users").where("id", "=", id).select();
   } catch (err) {
     return new Error("500 Internal error");
@@ -324,6 +336,7 @@ const findId = async (id) => {
  */
 const findByEmail = async (email) => {
   try {
+    // response user by email
     return await KnexMiddleWare("users").where("email", "=", email).select();
   } catch (err) {
     return new Error("500 Internal error");

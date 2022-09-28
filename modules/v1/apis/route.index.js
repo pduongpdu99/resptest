@@ -10,10 +10,4 @@ const router = express.Router();
 router.use("/users", UserRouter);
 router.use("/tokens", TokenRouter);
 
-// auth passport
-// router.use("/guests", authPassport(), guestRouter);
-// router.use("/evaluates", authPassport(), evaluateRouter);
-// router.use("/categories", authPassport(), categoryRouter);
-// router.use("/blogs", authPassport(), blogRouter);
-
 module.exports = router;
