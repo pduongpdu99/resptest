@@ -6,7 +6,6 @@ const knex_populate = require("knex-populate");
  */
 const selectAll = async () => {
   try {
-
     // get all token with populate
     return await knex_populate(KnexMiddleWare, "tokens")
       .find()
@@ -39,19 +38,29 @@ const selectAll = async () => {
  */
 const add = async (params) => {
   try {
-    return await KnexMiddleWare("tokens")
-      .insert(params)
-      .then((r) => {
-        return {
-          id: r[0],
-          ...params,
-        };
-      });
-  } catch (err) {
-    return {
-      status: 500,
-      ...{ message: "500 Internal error", error: err },
-    };
+    const tokenInstance = await KnexMiddleWare("tokens")
+      .where({
+        userId: params.userId,
+      })
+      .select()
+      .catch((e) => e);
+
+    // not exist -> allow add token
+    const isNotExist = tokenInstance.length == 0;
+    if (isNotExist == true) {
+      return await KnexMiddleWare("tokens")
+        .insert(params)
+        .then((r) => {
+          return {
+            id: r[0],
+            ...params,
+          };
+        });
+    } else {
+      throw new Error("409 Conflict");
+    }
+  } catch (e) {
+    return e;
   }
 };
 
@@ -119,10 +128,32 @@ const findId = async (id) => {
   }
 };
 
+/**
+ * add method
+ * @param {*} req
+ * @param {*} res
+ */
+const findUserByToken = async (refreshToken) => {
+  return await knex_populate(KnexMiddleWare, "tokens")
+    .find({ refreshToken: refreshToken })
+    .populate("users", "id", "userId")
+    .exec()
+    .then(
+      (objects) =>
+        objects.map((obj) => {
+          let users = obj.userId;
+          delete obj.userId;
+
+          return users[0];
+        })[0]
+    );
+};
+
 module.exports = {
   selectAll,
   add,
   removeById,
   updateById,
   findId,
+  findUserByToken,
 };

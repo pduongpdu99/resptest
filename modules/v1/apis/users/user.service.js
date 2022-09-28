@@ -65,6 +65,10 @@ const add = async (params) => {
 const signUp = async (params) => {
   try {
     const password = params.password;
+    // check valid password
+    if (!UserPreprocessUtil.isValidPassword(params.password))
+      throw new Error("400 http code on validation error");
+
     params["password"] = await UserPreprocessUtil.hashPassword(password, 10);
 
     const userInstance = await findByEmail(params["email"]);
@@ -77,63 +81,21 @@ const signUp = async (params) => {
         .then((r) => {
           delete params.password;
 
-          // declare token variables
-          let accessToken = undefined,
-            refreshToken = undefined;
-
-          // expires in
-          const expiresIn = "1d";
-
           // combie first and last name
           params.displayName = `${params.firstName} ${params.lastName}`;
 
-          // declare options
-          const options = {
-            email: params.email,
-          };
-
-          // create accessToken
-          accessToken = jwt.sign(options, process.env["ACCESS_TOKEN_SECRET"], {
-            expiresIn: "30s",
-          });
-
-          // create refreshToken
-          refreshToken = jwt.sign(
-            options,
-            process.env["REFRESH_TOKEN_SECRET"],
-            { expiresIn }
-          );
-
-          // token service is called to execute add method
-          TokenService.add({
-            userId: r[0],
-            refreshToken,
-            expiresIn,
-          });
-
           // return user, token, refreshToken
           return {
-            user: {
-              id: r[0],
-              ...params,
-            },
-            token: accessToken,
-            refreshToken,
+            id: r[0],
+            ...params,
           };
         });
     }
 
     // exist -> conflict
-    return {
-      status: 409,
-      ...{ message: "409 Conflict" },
-    };
+    return new Error("409 Conflict");
   } catch (err) {
-    console.log(err);
-    return {
-      status: 500,
-      ...{ message: "500 Internal error", error: err },
-    };
+    return err;
   }
 };
 
@@ -145,25 +107,67 @@ const signUp = async (params) => {
  */
 const signIn = async (params) => {
   try {
+    // check valid password
+    if (!UserPreprocessUtil.isValidPassword(params.password))
+      throw new Error("400 http code on validation error");
+
+    // pass
     return await KnexMiddleWare("users")
       .where({ email: params.email })
       .select()
-      .then((rs) => {
+      .then(async (rs) => {
         let check = false;
+        let user = undefined;
         for (let index = 0; index < rs.length; index++) {
           const i = rs[index];
+          user = rs[index];
+
           check = UserPreprocessUtil.compare(params.password, i.password);
           if (check) break;
         }
 
+        // declare token variables
+        let accessToken = undefined,
+          refreshToken = undefined;
+
+        // expires in
+        const expiresIn = "1d";
+
+        // declare options
+        const options = {
+          email: params.email,
+        };
+
+        // create accessToken
+        accessToken = jwt.sign(options, process.env["ACCESS_TOKEN_SECRET"], {
+          expiresIn: "30s",
+        });
+
+        // create refreshToken
+        refreshToken = jwt.sign(options, process.env["REFRESH_TOKEN_SECRET"], {
+          expiresIn,
+        });
+
+        // token service is called to execute add method
+        const t = await TokenService.add({
+          userId: user.id,
+          refreshToken,
+          expiresIn,
+        });
+
+        // throw error
+        if (t instanceof Error) throw t;
+
         // trả về kết quả email và password đúng --> true | false
-        return check;
+        delete user["password"];
+        return {
+          user: user,
+          token: accessToken,
+          refreshToken,
+        };
       });
   } catch (err) {
-    return {
-      status: 500,
-      ...{ message: "500 Internal error", error: err },
-    };
+    return err;
   }
 };
 

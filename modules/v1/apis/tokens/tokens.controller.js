@@ -117,6 +117,30 @@ const findId = async (req, res) => {
   }
 };
 
+/**
+ * add method
+ * @param {*} req
+ * @param {*} res
+ */
+const findUserByToken = async (req, res) => {
+  try {
+    const instance = await TokenService.findUserByToken(
+      req.body.refreshToken
+    );
+    if (instance.length == 0) {
+      // BUG: why not response this
+      res.status(404).json({ message: "Not found" });
+    } else {
+      res.status(200).json(instance);
+    }
+  } catch (err) {
+    console.error(err);
+    res
+      .status(500)
+      .json({ message: "Error find by id from Tokens", error: err });
+  }
+};
+
 module.exports = {
   selectAll,
   add,
@@ -125,4 +149,5 @@ module.exports = {
   findId,
   signUp,
   signIn,
+  findUserByToken,
 };

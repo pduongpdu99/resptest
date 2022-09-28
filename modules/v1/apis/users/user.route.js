@@ -1,5 +1,4 @@
 const { Router } = require("express");
-const AuthPassport = require("../../../../auth/auth.passport");
 
 // controller
 const UserController = require("./user.controller");
@@ -20,9 +19,8 @@ UserRouter.post("/add", UserController.add);
 UserRouter.post("/signup", UserController.signUp);
 UserRouter.post(
   "/signin",
-  AuthPassport.createJWT,
   // AuthPassport.afterJWT,
-  // UserController.signIn
+  UserController.signIn
 );
 
 // update

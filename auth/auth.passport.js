@@ -66,35 +66,3 @@ const { expressjwt: jwt } = require("express-jwt");
 //     }
 //   };
 // };
-
-const JWT = () => {
-  return (req, res) => {
-    // get and remove login status property
-    const loginStatus = req.loginStatus;
-    delete req.loginStatus;
-
-    res.status(200).json({ status: loginStatus });
-  };
-};
-
-/**
- * create JWT
- */
-const createJWT = jwt({
-  secret: "hello world !",
-  algorithms: ["HS256"],
-  credentialsRequired: false,
-});
-
-/**
- * after jwt
- * @param {*} req
- * @param {*} res
- * @returns
- */
-const afterJWT = (req, res) => {
-  if (!req.auth?.admin) return res.sendStatus(401);
-  res.sendStatus(200);
-};
-
-module.exports = { JWT, createJWT, afterJWT };

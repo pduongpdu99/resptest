@@ -21,7 +21,6 @@ const selectAll = async (req, res) => {
 const add = async (req, res) => {
   try {
     const params = req.body;
-    console.log(params);
     res.status(200).json(await UserService.add(params));
   } catch (err) {
     res.status(500).json({ message: "Error adding user", error: err });
@@ -38,6 +37,8 @@ const signUp = async (req, res) => {
     const params = req.body;
 
     const userSignuped = await UserService.signUp(params);
+    if (userSignuped instanceof Error) throw userSignuped;
+
     const { refreshToken } = userSignuped;
 
     // set cookie
@@ -49,7 +50,9 @@ const signUp = async (req, res) => {
 
     res.status(200).json(userSignuped);
   } catch (err) {
-    res.status(500).json({ message: "500 Error signning up user", error: err });
+    res
+      .status(err.message.toLowerCase().includes("validation") ? 400 : 500)
+      .json({ message: err.message, name: err.name, stack: err.stack });
   }
 };
 
@@ -58,19 +61,26 @@ const signUp = async (req, res) => {
  * @param {*} req
  * @param {*} res
  */
-const signIn = async (req, res, next) => {
+const signIn = async (req, res) => {
   try {
     const params = req.body;
     UserService.signIn(params).then((result) => {
-      if (result) {
-        req.loginStatus = result;
-        next();
+      if (!(result instanceof Error)) {
+        res.status(200).json(result);
       } else {
-        res.status(404).json({ message: "Not found" });
+        res
+          .status(result.message.toLowerCase().includes("conflict") ? 409 : 400)
+          .send({
+            message: result.message,
+            name: result.name,
+            stack: result.stack,
+          });
       }
     });
   } catch (err) {
-    res.status(500).json({ message: "500 Error signning in user", error: err });
+    res
+      .status(500)
+      .json({ message: "	500 http code on internal error", error: err });
   }
 };
 
@@ -130,7 +140,6 @@ const findId = async (req, res) => {
  * @param {*} res
  */
 const findByEmail = async (req, res) => {
-  console.log("Over here");
   try {
     const instance = await UserService.findByEmail(req.params.email);
     if (instance.length == 0) {

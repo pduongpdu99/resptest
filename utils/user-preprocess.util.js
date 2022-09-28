@@ -14,6 +14,16 @@ class UserPreprocessUtil {
   }
 
   /**
+   * check valid password
+   * @param {*} password 
+   * @returns 
+   */
+  static isValidPassword(password) {
+    var re = /^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
+    return re.test(password);
+  }
+
+  /**
    * convert to kind md5 password
    * @param {*} password
    * @returns
