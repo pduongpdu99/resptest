@@ -7,15 +7,15 @@ const tokenModel = () =>
   KnexMiddleWare.schema
     .createTableIfNotExists("tokens", (table) => {
       table.increments("id").primary();
-      table.string("userId");
-      table.string("refreshToken").unique();
-      table.string("expiresIn");
+      table.string("user_id");
+      table.string("refresh_token").unique();
+      table.string("expires_in");
       table
-        .dateTime("createdAt")
+        .dateTime("created_at")
         .notNullable()
         .defaultTo(KnexMiddleWare.raw("CURRENT_TIMESTAMP"));
       table
-        .dateTime("updatedAt")
+        .dateTime("updated_at")
         .notNullable()
         .defaultTo(
           KnexMiddleWare.raw("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")

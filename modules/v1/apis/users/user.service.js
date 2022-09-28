@@ -39,7 +39,7 @@ const add = async (params) => {
       .then((r) => {
         delete params.password;
 
-        params.displayName = `${params.firstName} ${params.lastName}`;
+        params.displayName = `${params.first_name} ${params.last_name}`;
         return {
           id: r[0],
           ...params,
@@ -80,7 +80,7 @@ const signUp = async (params) => {
           delete params.password;
 
           // combie first and last name
-          params.displayName = `${params.firstName} ${params.lastName}`;
+          params.display_name = `${params.first_name} ${params.last_name}`;
 
           // return user, token, refreshToken
           return {

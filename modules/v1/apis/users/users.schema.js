@@ -7,16 +7,16 @@ const userModel = () =>
   KnexMiddleWare.schema
     .createTableIfNotExists("users", (table) => {
       table.increments("id").primary();
-      table.string("firstName");
-      table.string("lastName");
+      table.string("first_name");
+      table.string("last_name");
       table.string("email").unique();
       table.string("password");
       table
-        .dateTime("createdAt")
+        .dateTime("created_at")
         .notNullable()
         .defaultTo(KnexMiddleWare.raw("CURRENT_TIMESTAMP"));
       table
-        .dateTime("updatedAt")
+        .dateTime("updated_at")
         .notNullable()
         .defaultTo(
           KnexMiddleWare.raw("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
