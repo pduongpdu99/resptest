@@ -23,10 +23,7 @@ const selectAll = async () => {
         })
       );
   } catch (err) {
-    return {
-      status: 500,
-      ...{ message: "500 Internal error", error: err },
-    };
+    return new Error("500 Internal error");
   }
 };
 
@@ -78,10 +75,7 @@ const removeById = async (id) => {
       message: "deleted",
     };
   } catch (err) {
-    return {
-      status: 500,
-      ...{ message: "500 Internal error", error: err },
-    };
+    return new Error("500 Internal error");
   }
 };
 
@@ -104,10 +98,7 @@ const updateById = async (id, params) => {
       message: "updated",
     };
   } catch (err) {
-    return {
-      status: 500,
-      ...{ message: "500 Internal error", error: err },
-    };
+    return new Error("500 Internal error");
   }
 };
 
@@ -121,10 +112,7 @@ const findId = async (id) => {
   try {
     return await KnexMiddleWare("tokens").where("id", "=", id).select();
   } catch (err) {
-    return {
-      status: 500,
-      ...{ message: "500 Internal error", error: err },
-    };
+    return new Error("500 Internal error");
   }
 };
 

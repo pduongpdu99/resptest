@@ -22,10 +22,7 @@ const selectAll = async () => {
   try {
     return await KnexMiddleWare.select().from("users");
   } catch (err) {
-    return {
-      status: 500,
-      ...{ message: "500 Internal error", error: err },
-    };
+    return new Error("500 Internal error");
   }
 };
 
@@ -49,10 +46,7 @@ const add = async (params) => {
         };
       });
   } catch (err) {
-    return {
-      status: 500,
-      ...{ message: "500 Internal error", error: err },
-    };
+    return new Error("500 Internal error");
   }
 };
 
@@ -198,10 +192,7 @@ const removeById = async (id) => {
       message: "deleted",
     };
   } catch (err) {
-    return {
-      status: 500,
-      ...{ message: "500 Internal error", error: err },
-    };
+    return new Error("500 Internal error");
   }
 };
 
@@ -224,10 +215,7 @@ const updateById = async (id, params) => {
       message: "updated",
     };
   } catch (err) {
-    return {
-      status: 500,
-      ...{ message: "500 Internal error", error: err },
-    };
+    return new Error("500 Internal error");
   }
 };
 
@@ -241,10 +229,7 @@ const findId = async (id) => {
   try {
     return await KnexMiddleWare("users").where("id", "=", id).select();
   } catch (err) {
-    return {
-      status: 500,
-      ...{ message: "500 Internal error", error: err },
-    };
+    return new Error("500 Internal error");
   }
 };
 
@@ -258,10 +243,7 @@ const findByEmail = async (email) => {
   try {
     return await KnexMiddleWare("users").where("email", "=", email).select();
   } catch (err) {
-    return {
-      status: 500,
-      ...{ message: "500 Internal error", error: err },
-    };
+    return new Error("500 Internal error");
   }
 };
 
