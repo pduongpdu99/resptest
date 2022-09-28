@@ -206,7 +206,6 @@ const signOut = async (authorization) => {
       let usr = us[0];
 
       // remove all in tokens by user id
-      console.log("user_id", usr.id);
       await KnexMiddleWare("tokens").where("user_id", usr.id).del();
     });
 

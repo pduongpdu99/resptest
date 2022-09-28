@@ -130,7 +130,6 @@ const signOut = async (req, res) => {
       }
     });
   } catch (err) {
-    console.log(err);
     res
       .status(500)
       .json({ message: "500 http code on internal error", error: err });
