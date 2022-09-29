@@ -48,6 +48,11 @@ const signUp = async (req, res) => {
       maxAge: _1day,
     });
 
+    res.cookie("jwt", refreshToken, {
+      httpOnly: true,
+      maxAge: _1day,
+    });
+
     res.status(200).json(userSignuped);
   } catch (err) {
     // get status code

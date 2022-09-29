@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-const { KnexMiddleWare } = require("../../../../middleware/knex.middleware");
+const { KnexMiddleWare } = require("../../../../db/knex.db");
 const {
   UserPreprocessUtil,
 } = require("../../../../utils/user-preprocess.util");
@@ -13,6 +13,10 @@ const dotenv = require("dotenv");
 
 // apply .env config
 dotenv.config();
+
+// crypto
+const crypto = require("crypto");
+const { attach } = require("../../../../utils/jwt.util");
 
 /**
  * select all
@@ -125,6 +129,8 @@ const signIn = async (params) => {
       .then(async (rs) => {
         let check = false;
         let user = undefined;
+
+        // check all users: user, check when compare true password
         for (let index = 0; index < rs.length; index++) {
           const i = rs[index];
           user = rs[index];
@@ -132,31 +138,13 @@ const signIn = async (params) => {
           if (check) break;
         }
 
-        // declare token variables
-        let accessToken = undefined,
-          refreshToken = undefined;
-
-        // expires in
-        const expiresInRefreshToken = "30d";
-        const expiresInAccessToken = "1h";
-
-        // declare options
-        const options = {
-          email: params.email,
-        };
-
-        // create accessToken
-        accessToken = jwt.sign(options, process.env["ACCESS_TOKEN_SECRET"], {
-          expiresIn: expiresInAccessToken,
-        });
-
-        // create refreshToken
-        refreshToken = jwt.sign(options, process.env["REFRESH_TOKEN_SECRET"], {
-          expiresIn: expiresInRefreshToken,
-        });
-
         // token service is called to execute add method
         if (check) {
+          // eslint-disable-next-line no-unused-vars
+          const payload = user.id;
+          let refreshToken = crypto.randomBytes(60).toString("hex");
+          attach()
+
           const t = await TokenService.add({
             user_id: user.id,
             refresh_token: refreshToken,
