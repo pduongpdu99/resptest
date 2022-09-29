@@ -1,15 +1,19 @@
+// dependencies
 const express = require("express");
 const http = require("http");
 const dotenv = require("dotenv");
 const cors = require("cors");
 
+// local source
 const { serverRunLogging } = require("./middleware/logger.middle");
 const routerIndex = require("./modules/v1/apis/route.index");
 
+// init server 
 const app = express();
 const server = http.createServer(app);
 
 const dotENV = dotenv.config().parsed;
+
 // plugins
 app.use(cors());
 app.use(express.json());

@@ -1,17 +1,7 @@
-const md5 = require("md5");
 const bcrypt = require("bcrypt");
 
 class UserPreprocessUtil {
   constructor() {}
-
-  /**
-   * convert to kind md5 password
-   * @param {*} password
-   * @returns
-   */
-  static convertToMD5(password) {
-    return md5(password);
-  }
 
   /**
    * check password valid
