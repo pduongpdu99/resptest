@@ -23,11 +23,10 @@ Coding theo references được viết trong bài word
   - service
 - utils: các util hỗ trợ, xử lý trước khi thực hiện service
 
-# Sử dụng postman
+## Sử dụng postman
 Import link postman
 - URL: `https://www.getpostman.com/collections/a5b2ffa49bc382cb5929`
 
 
-# Vấn đề chưa giải quyết được
-- Sử dụng express-jwt
-  - **Thay thế**: tham khảo được `express-jwt` sử dụng `jsonwebtoken` nên sử dụng trực tiếp thư viện này
+## khó khăn
+- Trong quá trình coding, thư viện knex chưa có khái niệm nên vừa học vừa làm code sẽ chưa đảm bảo về khoản tối ưu:
