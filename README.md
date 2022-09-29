@@ -56,7 +56,6 @@ Coding theo references được viết trong bài word
 Import link postman
 - URL: `https://www.getpostman.com/collections/a5b2ffa49bc382cb5929`
 
-
 ## Khó khăn
 - Trong quá trình coding, thư viện knex chưa có khái niệm nên vừa học vừa làm code sẽ chưa đảm bảo về khoảng tối ưu
 
