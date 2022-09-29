@@ -3,10 +3,6 @@ const { KnexMiddleWare } = require("../../../../db/knex.db");
 const {
   UserPreprocessUtil,
 } = require("../../../../utils/user-preprocess.util");
-const TokenService = require("../tokens/tokens.service");
-
-// jwt passport
-const jwt = require("jsonwebtoken");
 
 // .env
 const dotenv = require("dotenv");
@@ -124,58 +120,18 @@ const signIn = async (params) => {
       .select()
       .then(async (rs) => {
         let check = false;
-        let user = undefined;
         for (let index = 0; index < rs.length; index++) {
           const i = rs[index];
-          user = rs[index];
+          let user = rs[index];
           check = UserPreprocessUtil.compare(params.password, i.password);
-          if (check) break;
-        }
-
-        // declare token variables
-        let accessToken = undefined,
-          refreshToken = undefined;
-
-        // expires in
-        const expiresInRefreshToken = "30d";
-        const expiresInAccessToken = "1h";
-
-        // declare options
-        const options = {
-          email: params.email,
-        };
-
-        // create accessToken
-        accessToken = jwt.sign(options, process.env["ACCESS_TOKEN_SECRET"], {
-          expiresIn: expiresInAccessToken,
-        });
-
-        // create refreshToken
-        refreshToken = jwt.sign(options, process.env["REFRESH_TOKEN_SECRET"], {
-          expiresIn: expiresInRefreshToken,
-        });
-
-        // token service is called to execute add method
-        if (check) {
-          const t = await TokenService.add({
-            user_id: user.id,
-            refresh_token: refreshToken,
-            expires_in: expiresInRefreshToken,
-          });
-
-          // throw error
-          if (t instanceof Error) throw t;
-        } else {
-          throw new Error("404: user not found");
+          if (check) {
+            delete user["password"];
+            return user;
+          }
         }
 
         // trả về kết quả email và password đúng --> true | false
-        delete user["password"];
-        return {
-          user: user,
-          token: accessToken,
-          refresh_token: refreshToken,
-        };
+        return null;
       });
   } catch (err) {
     return err;
@@ -188,11 +144,8 @@ const signIn = async (params) => {
  * @method POST
  * @returns
  */
-const signOut = async (user_id) => {
-  if (user_id) return new Error("500 internal error");
-
+const signOut = async () => {
   // remove all in tokens by user id
-  await KnexMiddleWare("tokens").where("user_id", user_id).del();
   return {
     message: "Sign out sucess",
     statusCode: 204,
@@ -206,10 +159,6 @@ const signOut = async (user_id) => {
  * @returns
  */
 const refreshToken = async (params) => {
-  // check email validation
-  if (!UserPreprocessUtil.isRefreshTokenValidation(params.refresh_token))
-    throw new Error("500 - internal error");
-
   const instances = await KnexMiddleWare("tokens")
     .where("refresh_token", params.refresh_token)
     .select();
@@ -218,21 +167,13 @@ const refreshToken = async (params) => {
   if (instances.length == 0) return new Error("404 - token not found");
 
   // 200 - refresh token sucess
-
-  // declare options
-  const options = {
-    email: instances[0].email,
-  };
-
-  // update access token
-  accessToken = jwt.sign(options, process.env["ACCESS_TOKEN_SECRET"], {
-    expiresIn: "1h",
-  });
+  let user_id = instances[0].user_id;
+  const id = instances[0].id;
 
   // render content
   return {
-    token: accessToken,
-    refresh_token: instances[0].refresh_token,
+    user_id,
+    id,
   };
 };
 
@@ -297,20 +238,20 @@ const refreshToken = async (params) => {
 //   }
 // };
 
-// /**
-//  * find by id method
-//  * @param {*} email
-//  * @method GET
-//  * @returns
-//  */
-// const findByEmail = async (email) => {
-//   try {
-//     // response user by email
-//     return await KnexMiddleWare("users").where("email", "=", email).select();
-//   } catch (err) {
-//     return new Error("500 Internal error");
-//   }
-// };
+/**
+ * find by id method
+ * @param {*} email
+ * @method GET
+ * @returns
+ */
+const findByEmail = async (email) => {
+  try {
+    // response user by email
+    return await KnexMiddleWare("users").where("email", "=", email).select();
+  } catch (err) {
+    return new Error("500 Internal error");
+  }
+};
 
 module.exports = {
   // selectAll,

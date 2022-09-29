@@ -1,31 +1,8 @@
+const { attach } = require("../../../../utils/jwt.util");
 const UserService = require("./user.service");
+const TokenService = require("../tokens/tokens.service");
 
-// /**
-//  * select all
-//  * @param {*} req
-//  * @param {*} res
-//  */
-// const selectAll = async (req, res) => {
-//   try {
-//     res.status(200).json(await UserService.selectAll());
-//   } catch (err) {
-//     res.status(500).json({ message: "Error getting users", error: err });
-//   }
-// };
-
-// /**
-//  * add method
-//  * @param {*} req
-//  * @param {*} res
-//  */
-// const add = async (req, res) => {
-//   try {
-//     const params = req.body;
-//     res.status(200).json(await UserService.add(params));
-//   } catch (err) {
-//     res.status(500).json({ message: "Error adding user", error: err });
-//   }
-// };
+const crypto = require("crypto");
 
 /**
  * sign up method
@@ -38,15 +15,6 @@ const signUp = async (req, res) => {
 
     const userSignuped = await UserService.signUp(params);
     if (userSignuped instanceof Error) throw userSignuped;
-
-    const { refreshToken } = userSignuped;
-
-    // set cookie
-    const _1day = 24 * 60 * 60 * 1000;
-    res.cookie("jwt", refreshToken, {
-      httpOnly: true,
-      maxAge: _1day,
-    });
 
     res.status(200).json(userSignuped);
   } catch (err) {
@@ -71,27 +39,29 @@ const signUp = async (req, res) => {
 const signIn = async (req, res) => {
   try {
     const params = req.body;
-    UserService.signIn(params).then((result) => {
-      if (!(result instanceof Error)) {
-        // set result.refreshToken into cookie
-        res.cookie("jwt", result.refreshToken);
+    UserService.signIn(params).then(async (result) => {
+      if (result) {
+        // user
+        const payload = result.id;
+        const refreshToken = crypto.randomBytes(64).toString("HEX");
+
+        // create token
+        attach({ res, payload, refreshToken });
+
+        const tokenInstance = await TokenService.add({
+          user_id: result.id,
+          refresh_token: refreshToken,
+          expires_in: "30d",
+        });
 
         // render json result
-        res.status(200).json(result);
-      } else {
-        // get status code
-        const status = result.message.toLowerCase().includes("conflict")
-          ? 409
-          : result.message.toLowerCase().includes("not found")
-          ? 404
-          : 400;
-
-        // response
-        res.status(status).send({
-          message: result.message,
-          name: result.name,
-          stack: result.stack,
+        res.status(200).json({
+          user: result,
+          token: req.signedCookies.access_token,
+          refresh_token: tokenInstance.refresh_token,
         });
+      } else {
+        res.status(400).json({ message: "400 http code on validation error" });
       }
     });
   } catch (err) {
@@ -108,10 +78,14 @@ const signIn = async (req, res) => {
  */
 const signOut = async (req, res) => {
   try {
-    UserService.signOut(req.body.user_id).then((result) => {
+    UserService.signOut().then(async (result) => {
       if (!(result instanceof Error)) {
-        // set result.refreshToken into cookie
-        res.clearCookie("jwt");
+        // remove token
+        res.clearCookie("access_token", { httpOnly: true });
+        res.clearCookie("refresh_token", { httpOnly: true });
+
+        // // remove token in db
+        TokenService.removeAllTokenByUserId(req.user);
 
         // render json result
         res.status(200).json(result);
@@ -143,10 +117,20 @@ const signOut = async (req, res) => {
  */
 const refreshToken = (req, res) => {
   try {
-    UserService.refreshToken(req.body).then((result) => {
+    UserService.refreshToken(req.body).then(async (result) => {
       if (!(result instanceof Error)) {
+        const payload = result.user_id;
+
+        await TokenService.updateById(result.id, { user_id: result.user_id });
+
+        // create token
+        attach({ res, payload, refreshToken: req.body.refresh_token });
+
         // render json result
-        res.status(200).json(result);
+        res.status(200).json({
+          token: req.signedCookies.access_token,
+          refresh_token: req.body.refresh_token,
+        });
       } else {
         // get status code
         const status = 404;
@@ -164,86 +148,9 @@ const refreshToken = (req, res) => {
   }
 };
 
-// /**
-//  * update by id method
-//  * @param {*} req
-//  * @param {*} res
-//  */
-// const updateById = async (req, res) => {
-//   try {
-//     const params = req.body;
-//     const id = req.params.id;
-//     res.status(200).json(await UserService.updateById(id, params));
-//   } catch (err) {
-//     res.status(500).json({ message: "Error updating user by id", error: err });
-//   }
-// };
-
-// /**
-//  * remove by id method
-//  * @param {*} req
-//  * @param {*} res
-//  */
-// const removeById = async (req, res) => {
-//   try {
-//     const id = req.params.id;
-//     res.status(200).json(await UserService.removeById(id));
-//   } catch (err) {
-//     res.status(500).json({ message: "Error removing user by id", error: err });
-//   }
-// };
-
-// /**
-//  * find id method
-//  * @param {*} req
-//  * @param {*} res
-//  */
-// const findId = async (req, res) => {
-//   try {
-//     const instance = await UserService.findId(req.params.id);
-//     if (instance.length == 0) {
-//       // BUG: why not response this
-//       res.status(404).json({ message: "Not found", status: 404 });
-//     } else {
-//       res.status(200).json(instance[0]);
-//     }
-//   } catch (err) {
-//     res
-//       .status(500)
-//       .json({ message: "Error find by id from users", error: err });
-//   }
-// };
-
-// /**
-//  * find by email method
-//  * @param {*} req
-//  * @param {*} res
-//  */
-// const findByEmail = async (req, res) => {
-//   try {
-//     const instance = await UserService.findByEmail(req.params.email);
-//     if (instance.length == 0) {
-//       // BUG: why not response this
-//       res.status(404).json({ message: "Not found" });
-//     } else {
-//       res.status(200).json(instance[0]);
-//     }
-//   } catch (err) {
-//     res
-//       .status(500)
-//       .json({ message: "Error find by id from users", error: err });
-//   }
-// };
-
 module.exports = {
-  // selectAll,
-  // add,
-  // updateById,
-  // removeById,
-  // findId,
   signUp,
   signIn,
   signOut,
   refreshToken,
-  // findByEmail,
 };

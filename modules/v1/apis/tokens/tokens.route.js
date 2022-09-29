@@ -1,5 +1,7 @@
 const { Router } = require("express");
-const { authenticateToken } = require("../../../../auth/auth.passport");
+const {
+  authenticateUser,
+} = require("../../../../middleware/authenticate.middle");
 
 // controller
 const TokenController = require("./tokens.controller");
@@ -9,26 +11,17 @@ const { tokenModel } = require("./tokens.schema");
 tokenModel();
 
 // get
-TokenRouter.get("/all", authenticateToken, TokenController.selectAll);
-TokenRouter.get("/find/:id", authenticateToken, TokenController.findId);
+TokenRouter.get("/all", authenticateUser, TokenController.selectAll);
+TokenRouter.get("/find/:id", authenticateUser, TokenController.findId);
 
 // post
-TokenRouter.post("/add", authenticateToken, TokenController.add);
-TokenRouter.post(
-  "/find/user",
-  authenticateToken,
-  TokenController.findUserByToken
-);
+TokenRouter.post("/add", authenticateUser, TokenController.add);
 
 // update
-TokenRouter.put("/update/:id", authenticateToken, TokenController.updateById);
+TokenRouter.put("/update/:id", authenticateUser, TokenController.updateById);
 
 // delete
-TokenRouter.delete(
-  "/delete/:id",
-  authenticateToken,
-  TokenController.removeById
-);
+TokenRouter.delete("/delete/:id", authenticateUser, TokenController.removeById);
 
 // export
 module.exports = { TokenRouter };

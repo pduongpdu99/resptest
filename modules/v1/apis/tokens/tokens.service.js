@@ -1,5 +1,4 @@
 const { KnexMiddleWare } = require("../../../../db/knex.db");
-const knex_populate = require("knex-populate");
 /**
  * select all
  * @returns
@@ -21,27 +20,14 @@ const selectAll = async () => {
  */
 const add = async (params) => {
   try {
-    const tokenInstance = await KnexMiddleWare("tokens")
-      .where({
-        user_id: params.user_id,
-      })
-      .select()
-      .catch((e) => e);
-
-    // not exist -> allow add token
-    const isNotExist = tokenInstance.length == 0;
-    if (isNotExist == true) {
-      return await KnexMiddleWare("tokens")
-        .insert(params)
-        .then((r) => {
-          return {
-            id: r[0],
-            ...params,
-          };
-        });
-    } else {
-      throw new Error("409 Conflict");
-    }
+    return await KnexMiddleWare("tokens")
+      .insert(params)
+      .then((r) => {
+        return {
+          id: r[0],
+          ...params,
+        };
+      });
   } catch (e) {
     return e;
   }
@@ -89,6 +75,24 @@ const updateById = async (id, params) => {
 };
 
 /**
+ * remove all token by user id
+ * @param {*} userId
+ * @returns
+ */
+const removeAllTokenByUserId = async (userId) => {
+  try {
+    // update by id
+    await KnexMiddleWare("tokens").where("user_id", userId).del();
+    return {
+      status: 200,
+      message: "remove sucess",
+    };
+  } catch (err) {
+    return new Error("500 Internal error");
+  }
+};
+
+/**
  * find by id method
  * @param {*} id
  * @method GET
@@ -107,20 +111,17 @@ const findId = async (id) => {
  * @param {*} req
  * @param {*} res
  */
-const findUserByToken = async (refreshToken) => {
-  return await knex_populate(KnexMiddleWare, "tokens")
-    .find({ refreshToken: refreshToken })
-    .populate("users", "id", "userId")
-    .exec()
-    .then(
-      (objects) =>
-        objects.map((obj) => {
-          let users = obj.userId;
-          delete obj.userId;
-
-          return users[0];
-        })[0]
-    );
+const findToken = async ({ userId, refreshToken }) => {
+  try {
+    return await KnexMiddleWare("tokens")
+      .where({
+        user_id: userId,
+        refresh_token: refreshToken,
+      })
+      .select();
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 module.exports = {
@@ -129,5 +130,6 @@ module.exports = {
   removeById,
   updateById,
   findId,
-  findUserByToken,
+  removeAllTokenByUserId,
+  findToken,
 };

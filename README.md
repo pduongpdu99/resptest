@@ -33,16 +33,10 @@ Coding theo references được viết trong bài word
   - `/v1/tokens/delete/:id` (DELETE): xóa token theo id
 
 - **Users**:
-  - `/v1/users/all` (GET): trả về một dataset của users
-  - `/v1/users/find/:id` (GET): trả về một user theo id
-  - `/v1/users/add` (POST): thêm user vào table
-  - `/v1/users/find/user` (POST): trả về user theo user
   - `/v1/users/sign-up` (POST): đăng ký account
   - `/v1/users/sign-in` (POST): đăng nhập account -> trả về token
   - `/v1/users/sign-out` (POST): đăng xuất 
   - `/v1/users/refresh-token` (POST): Sử dụng refresh token để tạo mới access token
-  - `/v1/users/update/:id` (PUT): cập nhật user theo id
-  - `/v1/users/delete/:id` (DELETE): xóa user theo id
 
 **Note:** 
 - Vì vấn đề thời gian nên không thể triển khai `swagger` đê có view tốt hơn.
