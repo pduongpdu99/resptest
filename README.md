@@ -14,8 +14,9 @@ Coding theo references được viết trong bài word
 - nodemon
 
 ### Cấu trúc - Dựa vào MVC
+- db: connect knex
 - auth: dùng để xác thực người dùng
-- middleware: các service như connect knex, logger
+- middleware: auth, logger
 - modules: source phân mọi table tương ứng mỗi module
   - controller
   - route
