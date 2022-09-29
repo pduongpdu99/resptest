@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-const { KnexMiddleWare } = require("../../../../middleware/knex.middleware");
+const { KnexMiddleWare } = require("../../../../db/knex.db");
 const {
   UserPreprocessUtil,
 } = require("../../../../utils/user-preprocess.util");
@@ -14,41 +14,41 @@ const dotenv = require("dotenv");
 // apply .env config
 dotenv.config();
 
-/**
- * select all
- * @returns
- */
-const selectAll = async () => {
-  try {
-    return await KnexMiddleWare.select().from("users");
-  } catch (err) {
-    return new Error("500 Internal error");
-  }
-};
+// /**
+//  * select all
+//  * @returns
+//  */
+// const selectAll = async () => {
+//   try {
+//     return await KnexMiddleWare.select().from("users");
+//   } catch (err) {
+//     return new Error("500 Internal error");
+//   }
+// };
 
-/**
- * add method
- * @param {*} params
- * @method POST
- * @returns
- */
-const add = async (params) => {
-  try {
-    return await KnexMiddleWare("users")
-      .insert(params)
-      .then((r) => {
-        delete params.password;
+// /**
+//  * add method
+//  * @param {*} params
+//  * @method POST
+//  * @returns
+//  */
+// const add = async (params) => {
+//   try {
+//     return await KnexMiddleWare("users")
+//       .insert(params)
+//       .then((r) => {
+//         delete params.password;
 
-        params.displayName = `${params.first_name} ${params.last_name}`;
-        return {
-          id: r[0],
-          ...params,
-        };
-      });
-  } catch (err) {
-    return new Error("500 Internal error");
-  }
-};
+//         params.displayName = `${params.first_name} ${params.last_name}`;
+//         return {
+//           id: r[0],
+//           ...params,
+//         };
+//       });
+//   } catch (err) {
+//     return new Error("500 Internal error");
+//   }
+// };
 
 /**
  * sign up method
@@ -188,40 +188,15 @@ const signIn = async (params) => {
  * @method POST
  * @returns
  */
-const signOut = async (authorization) => {
-  if (authorization) {
-    const authHeader = authorization;
-    let token = authHeader.split(" ")[1];
-    if (token == null) throw new Error("401 token null");
+const signOut = async (user_id) => {
+  if (user_id) return new Error("500 internal error");
 
-    // check access token secret & token from header to get the user email
-    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
-      // throw err
-      if (err) throw new Error(err);
-
-      // get email from user auth-ed by jwt
-      let email = user.email;
-
-      // find all users by email
-      let us = await findByEmail(email);
-
-      // throw if empty
-      if (us.length == 0) throw new Error("404 not found");
-
-      // first user
-      let usr = us[0];
-
-      // remove all in tokens by user id
-      await KnexMiddleWare("tokens").where("user_id", usr.id).del();
-    });
-
-    return {
-      message: "Sign out sucess",
-      statusCode: 204,
-    };
-  } else {
-    return new Error("500 internal error");
-  }
+  // remove all in tokens by user id
+  await KnexMiddleWare("tokens").where("user_id", user_id).del();
+  return {
+    message: "Sign out sucess",
+    statusCode: 204,
+  };
 };
 
 /**
@@ -231,127 +206,121 @@ const signOut = async (authorization) => {
  * @returns
  */
 const refreshToken = async (params) => {
-  try {
-    // check email validation
-    if (!UserPreprocessUtil.isRefreshTokenValidation(params.refresh_token))
-      throw new Error("500 - internal error");
+  // check email validation
+  if (!UserPreprocessUtil.isRefreshTokenValidation(params.refresh_token))
+    throw new Error("500 - internal error");
 
-    const instances = await KnexMiddleWare("tokens")
-      .where("refresh_token", params.refresh_token)
-      .select();
+  const instances = await KnexMiddleWare("tokens")
+    .where("refresh_token", params.refresh_token)
+    .select();
 
-    // 404 - token not found
-    if (instances.length == 0) {
-      return new Error("404 - token not found");
-    } else {
-      // 200 - refresh token sucess
+  // 404 - token not found
+  if (instances.length == 0) return new Error("404 - token not found");
 
-      // declare options
-      const options = {
-        email: instances[0].email,
-      };
+  // 200 - refresh token sucess
 
-      // update access token
-      accessToken = jwt.sign(options, process.env["ACCESS_TOKEN_SECRET"], {
-        expiresIn: "1h",
-      });
+  // declare options
+  const options = {
+    email: instances[0].email,
+  };
 
-      // render content
-      return {
-        token: accessToken,
-        refresh_token: instances[0].refresh_token,
-      };
-    }
-  } catch (err) {
-    return err;
-  }
+  // update access token
+  accessToken = jwt.sign(options, process.env["ACCESS_TOKEN_SECRET"], {
+    expiresIn: "1h",
+  });
+
+  // render content
+  return {
+    token: accessToken,
+    refresh_token: instances[0].refresh_token,
+  };
 };
 
-/**
- * remove method
- * @param {*} id
- * @method DELETE
- * @returns
- */
-const removeById = async (id) => {
-  try {
-    // remove id user
-    await KnexMiddleWare("users").where("id", "=", id).del();
+// /**
+//  * remove method
+//  * @param {*} id
+//  * @method DELETE
+//  * @returns
+//  */
+// const removeById = async (id) => {
+//   try {
+//     // remove id user
+//     await KnexMiddleWare("users").where("id", "=", id).del();
 
-    // response
-    return {
-      status: 200,
-      message: "deleted",
-    };
-  } catch (err) {
-    return new Error("500 Internal error");
-  }
-};
+//     // response
+//     return {
+//       status: 200,
+//       message: "deleted",
+//     };
+//   } catch (err) {
+//     return new Error("500 Internal error");
+//   }
+// };
 
-/**
- * update method
- * @param {*} id
- * @param {*} params
- * @method PUT
- * @returns
- */
-const updateById = async (id, params) => {
-  try {
-    // remove id property
-    delete params.id;
+// /**
+//  * update method
+//  * @param {*} id
+//  * @param {*} params
+//  * @method PUT
+//  * @returns
+//  */
+// const updateById = async (id, params) => {
+//   try {
+//     // remove id property
+//     delete params.id;
 
-    // update by id
-    await KnexMiddleWare("users").where("id", "=", id).update(params);
+//     // update by id
+//     await KnexMiddleWare("users").where("id", "=", id).update(params);
 
-    // response
-    return {
-      status: 200,
-      message: "updated",
-    };
-  } catch (err) {
-    return new Error("500 Internal error");
-  }
-};
+//     // response
+//     return {
+//       status: 200,
+//       message: "updated",
+//     };
+//   } catch (err) {
+//     return new Error("500 Internal error");
+//   }
+// };
 
-/**
- * find by id method
- * @param {*} id
- * @method GET
- * @returns
- */
-const findId = async (id) => {
-  try {
-    // response user by id
-    return await KnexMiddleWare("users").where("id", "=", id).select();
-  } catch (err) {
-    return new Error("500 Internal error");
-  }
-};
+// /**
+//  * find by id method
+//  * @param {*} id
+//  * @method GET
+//  * @returns
+//  */
+// const findId = async (id) => {
+//   try {
+//     // response user by id
+//     return await KnexMiddleWare("users").where("id", "=", id).select();
+//   } catch (err) {
+//     return new Error("500 Internal error");
+//   }
+// };
 
-/**
- * find by id method
- * @param {*} email
- * @method GET
- * @returns
- */
-const findByEmail = async (email) => {
-  try {
-    // response user by email
-    return await KnexMiddleWare("users").where("email", "=", email).select();
-  } catch (err) {
-    return new Error("500 Internal error");
-  }
-};
+// /**
+//  * find by id method
+//  * @param {*} email
+//  * @method GET
+//  * @returns
+//  */
+// const findByEmail = async (email) => {
+//   try {
+//     // response user by email
+//     return await KnexMiddleWare("users").where("email", "=", email).select();
+//   } catch (err) {
+//     return new Error("500 Internal error");
+//   }
+// };
 
 module.exports = {
-  selectAll,
-  add,
-  removeById,
-  updateById,
-  findId,
+  // selectAll,
+  // add,
+  // removeById,
+  // updateById,
+  // findId,
   signUp,
   signIn,
   signOut,
   refreshToken,
-  findByEmail,
+  // findByEmail,
 };

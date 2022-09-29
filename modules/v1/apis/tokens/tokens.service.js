@@ -1,4 +1,4 @@
-const { KnexMiddleWare } = require("../../../../middleware/knex.middleware");
+const { KnexMiddleWare } = require("../../../../db/knex.db");
 const knex_populate = require("knex-populate");
 /**
  * select all

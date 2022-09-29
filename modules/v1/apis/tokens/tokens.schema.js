@@ -1,4 +1,4 @@
-const { KnexMiddleWare } = require("../../../../middleware/knex.middleware");
+const { KnexMiddleWare } = require("../../../../db/knex.db");
 
 /**
  * token model init
@@ -7,7 +7,7 @@ const tokenModel = () =>
   KnexMiddleWare.schema
     .createTableIfNotExists("tokens", (table) => {
       table.increments("id").primary();
-      table.string("user_id");
+      table.integer("user_id").references('users.id').notNullable();
       table.string("refresh_token").unique();
       table.string("expires_in");
       table
