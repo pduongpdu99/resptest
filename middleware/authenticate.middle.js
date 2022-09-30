@@ -11,22 +11,24 @@ const authenticateUser = async (req, res, next) => {
   const { access_token, refresh_token } = req.signedCookies;
 
   try {
+    // use access token if not empty
     if (access_token) {
       const payload = verifyJWT(access_token);
       req.user = payload;
       return next();
     }
 
+    // else use refresh token
     const payload = verifyJWT(refresh_token);
-    console.log(payload);
     const tokens = await TokenService.findToken({
       userId: payload.user,
       refreshToken: payload.refreshToken,
     });
-    console.log(tokens.length === 0);
 
+    // return error
     if (tokens.length === 0) return new Error("401 unauthorized");
 
+    // generate access and refresh token
     attach({
       res,
       payload: payload.user,

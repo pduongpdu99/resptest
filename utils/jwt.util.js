@@ -35,7 +35,6 @@ const attach = ({ res, payload, refreshToken }) => {
   const accessTokenJWT = generateToken(payload);
   const refreshTokenJWT = generateToken({ user: payload, refreshToken });
 
-//   const _60m = 1000 * 60 * 60;
   const _60m = 1000 * 60 * 60;
   const _30d = 1000 * 60 * 60 * 24 * 30;
 

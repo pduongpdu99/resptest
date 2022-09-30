@@ -10,42 +10,6 @@ const dotenv = require("dotenv");
 // apply .env config
 dotenv.config();
 
-// /**
-//  * select all
-//  * @returns
-//  */
-// const selectAll = async () => {
-//   try {
-//     return await KnexMiddleWare.select().from("users");
-//   } catch (err) {
-//     return new Error("500 Internal error");
-//   }
-// };
-
-// /**
-//  * add method
-//  * @param {*} params
-//  * @method POST
-//  * @returns
-//  */
-// const add = async (params) => {
-//   try {
-//     return await KnexMiddleWare("users")
-//       .insert(params)
-//       .then((r) => {
-//         delete params.password;
-
-//         params.displayName = `${params.first_name} ${params.last_name}`;
-//         return {
-//           id: r[0],
-//           ...params,
-//         };
-//       });
-//   } catch (err) {
-//     return new Error("500 Internal error");
-//   }
-// };
-
 /**
  * sign up method
  * @param {*} params
@@ -177,67 +141,6 @@ const refreshToken = async (params) => {
   };
 };
 
-// /**
-//  * remove method
-//  * @param {*} id
-//  * @method DELETE
-//  * @returns
-//  */
-// const removeById = async (id) => {
-//   try {
-//     // remove id user
-//     await KnexMiddleWare("users").where("id", "=", id).del();
-
-//     // response
-//     return {
-//       status: 200,
-//       message: "deleted",
-//     };
-//   } catch (err) {
-//     return new Error("500 Internal error");
-//   }
-// };
-
-// /**
-//  * update method
-//  * @param {*} id
-//  * @param {*} params
-//  * @method PUT
-//  * @returns
-//  */
-// const updateById = async (id, params) => {
-//   try {
-//     // remove id property
-//     delete params.id;
-
-//     // update by id
-//     await KnexMiddleWare("users").where("id", "=", id).update(params);
-
-//     // response
-//     return {
-//       status: 200,
-//       message: "updated",
-//     };
-//   } catch (err) {
-//     return new Error("500 Internal error");
-//   }
-// };
-
-// /**
-//  * find by id method
-//  * @param {*} id
-//  * @method GET
-//  * @returns
-//  */
-// const findId = async (id) => {
-//   try {
-//     // response user by id
-//     return await KnexMiddleWare("users").where("id", "=", id).select();
-//   } catch (err) {
-//     return new Error("500 Internal error");
-//   }
-// };
-
 /**
  * find by id method
  * @param {*} email
@@ -254,14 +157,8 @@ const findByEmail = async (email) => {
 };
 
 module.exports = {
-  // selectAll,
-  // add,
-  // removeById,
-  // updateById,
-  // findId,
   signUp,
   signIn,
   signOut,
   refreshToken,
-  // findByEmail,
 };
